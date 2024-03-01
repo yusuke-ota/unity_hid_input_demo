@@ -6,3 +6,21 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+cortex-m = "0.7.7"
+panic-halt = "0.2.0"
+
+# collections without allocation
+heapless = "0.8.0"
+
+# Board Support Package for wio terminal
+wio_terminal = "0.7.0"
+
+# Display crate.
+embedded-graphics = "0.7"
+
+# accelerometer
+lis3dh = "0.3"
+
+# USB HID
+usb-device = "0.2"
+usbd-hid = "0.6"
