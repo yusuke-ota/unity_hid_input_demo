@@ -24,7 +24,8 @@ use lis3dh::accelerometer::vector::I16x3;
 use lis3dh::Lis3dh;
 
 // usb
-use crate::gamepad_descriptor::GamePadReport;
+use gamepad_descriptor::GamePadReport;
+use terminal::Terminal;
 use usb_device::prelude::{UsbDeviceBuilder, UsbVidPid};
 use usbd_hid::descriptor::SerializedDescriptor;
 use usbd_hid::hid_class::HIDClass;
@@ -65,7 +66,7 @@ fn main() -> ! {
         )
         .unwrap();
 
-    let _terminal = terminal::Terminal::new(display);
+    let mut terminal = terminal::Terminal::new(display);
 
     let button_controller = sets.buttons.init(peripherals.EIC, &mut clocks, main_clock);
     let nvic = &mut core.NVIC;
@@ -89,10 +90,13 @@ fn main() -> ! {
         .serial_number("TEST")
         .build();
 
+    let mut display_str = heapless::String::<64>::new();
+    let mut report = GamePadReport::default();
+
     loop {
-        let mut report = GamePadReport::default();
         update_hid_report_via_joystick(&mut report);
         update_hid_report_via_accelerometer(&mut accelerometer, &mut report);
+        display_report(&mut terminal, &mut display_str, &report);
         usb_hid.push_input(&report).ok();
         usb_bus.poll(&mut [&mut usb_hid]);
     }
@@ -136,6 +140,33 @@ fn update_hid_report_via_accelerometer<T: RawAccelerometer<I16x3>>(
         report.ry = vec3.y;
         report.rz = vec3.z;
     }
+}
+
+fn display_report(
+    terminal: &mut Terminal,
+    display_str: &mut heapless::String<64>,
+    report: &GamePadReport,
+) {
+    display_str.clear();
+    let x: heapless::String<4> = heapless::String::try_from(report.x).unwrap();
+    let y: heapless::String<4> = heapless::String::try_from(report.y).unwrap();
+    let z: heapless::String<4> = heapless::String::try_from(report.z).unwrap();
+    let rx: heapless::String<6> = heapless::String::try_from(report.rx).unwrap();
+    let ry: heapless::String<6> = heapless::String::try_from(report.ry).unwrap();
+    let rz: heapless::String<6> = heapless::String::try_from(report.rz).unwrap();
+    display_str.push_str("x: ").unwrap(); // cap(64) > len( 0 + 3 =  3)
+    display_str.push_str(x.as_str()).unwrap(); // cap(64) > len( 3 + 4 =  7)
+    display_str.push_str("\ny: ").unwrap(); // cap(64) > len( 7 + 5 = 12)
+    display_str.push_str(y.as_str()).unwrap(); // cap(64) > len(12 + 4 = 16)
+    display_str.push_str("\nz: ").unwrap(); // cap(64) > len(16 + 5 = 21)
+    display_str.push_str(z.as_str()).unwrap(); // cap(64) > len(21 + 4 = 25)
+    display_str.push_str("\nrx: ").unwrap(); // cap(64) > len(25 + 6 = 31)
+    display_str.push_str(rx.as_str()).unwrap(); // cap(64) > len(31 + 6 = 37)
+    display_str.push_str("\nry: ").unwrap(); // cap(64) > len(37 + 6 = 43)
+    display_str.push_str(ry.as_str()).unwrap(); // cap(64) > len(43 + 6 = 49)
+    display_str.push_str("\nrz: ").unwrap(); // cap(64) > len(49 + 6 = 55)
+    display_str.push_str(rz.as_str()).unwrap(); // cap(64) > len(55 + 6 = 61)
+    terminal.write_str(display_str.as_str());
 }
 
 button_interrupt!(
