@@ -1,6 +1,7 @@
 #![no_std]
 #![no_main]
 
+mod gamepad_descriptor;
 mod terminal;
 
 use cortex_m::interrupt::{free as disable_interrupts, CriticalSection};
@@ -23,8 +24,9 @@ use lis3dh::accelerometer::vector::I16x3;
 use lis3dh::Lis3dh;
 
 // usb
+use crate::gamepad_descriptor::GamePadReport;
 use usb_device::prelude::{UsbDeviceBuilder, UsbVidPid};
-use usbd_hid::descriptor::{MouseReport, SerializedDescriptor};
+use usbd_hid::descriptor::SerializedDescriptor;
 use usbd_hid::hid_class::HIDClass;
 
 static mut BUTTON_CONTROLLER: Option<bsp::ButtonController> = None;
@@ -80,7 +82,7 @@ fn main() -> ! {
         .usb
         .usb_allocator(peripherals.USB, &mut clocks, main_clock);
 
-    let mut usb_hid = Some(HIDClass::new(&bus_allocator, MouseReport::desc(), 60));
+    let mut usb_hid = Some(HIDClass::new(&bus_allocator, GamePadReport::desc(), 60));
     let mut usb_bus = Some(
         UsbDeviceBuilder::new(&bus_allocator, UsbVidPid(0x16c0, 0x27dd))
             .manufacturer("Fake company")
