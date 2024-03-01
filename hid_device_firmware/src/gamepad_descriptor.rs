@@ -36,7 +36,7 @@ pub struct GamePadReport {
     pub x: i8,
     pub y: i8,
     pub z: i8,
-    pub rx: i8,
-    pub ry: i8,
-    pub rz: i8,
+    pub rx: i16,
+    pub ry: i16,
+    pub rz: i16,
 }

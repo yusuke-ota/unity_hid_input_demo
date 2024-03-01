@@ -82,37 +82,59 @@ fn main() -> ! {
         .usb
         .usb_allocator(peripherals.USB, &mut clocks, main_clock);
 
-    let mut usb_hid = Some(HIDClass::new(&bus_allocator, GamePadReport::desc(), 60));
-    let mut usb_bus = Some(
-        UsbDeviceBuilder::new(&bus_allocator, UsbVidPid(0x16c0, 0x27dd))
-            .manufacturer("Fake company")
-            .product("GamePad via Wio Terminal")
-            .serial_number("TEST")
-            .build(),
-    );
+    let mut usb_hid = HIDClass::new(&bus_allocator, GamePadReport::desc(), 60);
+    let mut usb_bus = UsbDeviceBuilder::new(&bus_allocator, UsbVidPid(0x16c0, 0x27dd))
+        .manufacturer("Fake company")
+        .product("GamePad via Wio Terminal")
+        .serial_number("TEST")
+        .build();
 
     loop {
-        update_hid_report_via_joystick();
-        update_hid_report_via_accelerometer(&mut accelerometer);
-        if let (Some(usb_dev), Some(hid)) = (usb_bus.as_mut(), usb_hid.as_mut()) {
-            usb_dev.poll(&mut [hid]);
-        }
+        let mut report = GamePadReport::default();
+        update_hid_report_via_joystick(&mut report);
+        update_hid_report_via_accelerometer(&mut accelerometer, &mut report);
+        usb_hid.push_input(&report).ok();
+        usb_bus.poll(&mut [&mut usb_hid]);
     }
 }
 
-fn update_hid_report_via_joystick() {
+fn update_hid_report_via_joystick(report: &mut GamePadReport) {
     unsafe {
-        V.iter()
-            .for_each(|event| todo!("impl hid report update function"));
+        V.iter().for_each(|event| {
+            let (button, down) = (&event.button, &event.down);
+            match button {
+                bsp::Button::Up => {
+                    report.y = if *down { 127 } else { 0 };
+                }
+                bsp::Button::Down => {
+                    report.y = if *down { -127 } else { 0 };
+                }
+                bsp::Button::Left => {
+                    report.x = if *down { -127 } else { 0 };
+                }
+                bsp::Button::Right => {
+                    report.x = if *down { 127 } else { 0 };
+                }
+                bsp::Button::Click => {
+                    report.z = if *down { 127 } else { 0 };
+                }
+                _ => {}
+            }
+        });
     }
     unsafe {
         V.clear();
     }
 }
 
-fn update_hid_report_via_accelerometer<T: RawAccelerometer<I16x3>>(accelerometer: &mut T) {
-    if let Ok(_vec3) = accelerometer.accel_raw() {
-        // todo!("impl hid report update function");
+fn update_hid_report_via_accelerometer<T: RawAccelerometer<I16x3>>(
+    accelerometer: &mut T,
+    report: &mut GamePadReport,
+) {
+    if let Ok(vec3) = accelerometer.accel_raw() {
+        report.rx = vec3.x;
+        report.ry = vec3.y;
+        report.rz = vec3.z;
     }
 }
 
