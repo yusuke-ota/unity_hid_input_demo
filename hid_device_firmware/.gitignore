@@ -1,0 +1,5 @@
+# Compiled files
+/target/
+
+# Dependency directories
+Cargo.lock
