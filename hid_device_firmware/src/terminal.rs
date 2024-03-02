@@ -30,6 +30,11 @@ impl<'a> Terminal<'a> {
         }
     }
 
+    pub fn clear(&mut self) {
+        self.display.clear(Rgb565::BLACK).ok().unwrap();
+        self.cursor = Point::new(0, 0);
+    }
+
     pub fn write_str(&mut self, str: &str) {
         for character in str.chars() {
             self.write_character(character);
