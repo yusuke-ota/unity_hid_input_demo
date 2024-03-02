@@ -20,7 +20,7 @@ use hal::timer::TimerCounter;
 // use pac::interrupt;
 
 use lis3dh::accelerometer::vector::I16x3;
-use lis3dh::Lis3dh;
+use lis3dh::{Lis3dh, Mode, Range};
 
 // usb
 use gamepad_descriptor::GamepadReport;
@@ -100,7 +100,25 @@ fn main() -> ! {
     );
     timer.start(10.millis());
     let mut state = usb_dev.state();
+    terminal.write_str("Wio Terminal GamePad\n");
     display_usb_state(&mut terminal, state);
+
+    let mode = accelerometer.get_mode();
+    match mode {
+        Ok(Mode::LowPower) => terminal.write_str("Mode: LowPower\n"),
+        Ok(Mode::Normal) => terminal.write_str("Mode: Normal\n"),
+        Ok(Mode::HighResolution) => terminal.write_str("Mode: HighResolution\n"),
+        _ => {}
+    }
+
+    let range = accelerometer.get_range();
+    match range {
+        Ok(Range::G2) => terminal.write_str("Range: 2G\n"),
+        Ok(Range::G4) => terminal.write_str("Range: 4G\n"),
+        Ok(Range::G8) => terminal.write_str("Range: 8G\n"),
+        Ok(Range::G16) => terminal.write_str("Range: 16G\n"),
+        _ => {}
+    }
 
     loop {
         if timer.wait().is_ok() {
