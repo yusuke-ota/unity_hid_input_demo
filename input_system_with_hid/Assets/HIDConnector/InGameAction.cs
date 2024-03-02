@@ -28,7 +28,7 @@ public partial class @InGameAction: IInputActionCollection2, IDisposable
             ""id"": ""b865d47f-81f6-4c77-8537-a9d4cf4484a2"",
             ""actions"": [
                 {
-                    ""name"": ""New action"",
+                    ""name"": ""Move"",
                     ""type"": ""Value"",
                     ""id"": ""bf645d49-6bc7-41ae-9454-3a2df19ab768"",
                     ""expectedControlType"": ""Vector3"",
@@ -45,7 +45,7 @@ public partial class @InGameAction: IInputActionCollection2, IDisposable
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""New action"",
+                    ""action"": ""Move"",
                     ""isComposite"": true,
                     ""isPartOfComposite"": false
                 },
@@ -54,9 +54,9 @@ public partial class @InGameAction: IInputActionCollection2, IDisposable
                     ""id"": ""3d11ee16-e3eb-4e8c-a4f6-650b9926cd73"",
                     ""path"": ""<HID::Fake company Wio Terminal GamePad>/z"",
                     ""interactions"": """",
-                    ""processors"": """",
+                    ""processors"": ""Scale(factor=0.0625),Scale(factor=0.001)"",
                     ""groups"": """",
-                    ""action"": ""New action"",
+                    ""action"": ""Move"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": true
                 },
@@ -65,9 +65,9 @@ public partial class @InGameAction: IInputActionCollection2, IDisposable
                     ""id"": ""7d898ee4-cb2b-4fcf-ace4-7456c9090ca0"",
                     ""path"": ""<HID::Fake company Wio Terminal GamePad>/z"",
                     ""interactions"": """",
-                    ""processors"": """",
+                    ""processors"": ""Scale(factor=0.0625),Scale(factor=0.001)"",
                     ""groups"": """",
-                    ""action"": ""New action"",
+                    ""action"": ""Move"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": true
                 },
@@ -76,9 +76,9 @@ public partial class @InGameAction: IInputActionCollection2, IDisposable
                     ""id"": ""dbb94584-4e0d-47c9-80ea-cc6bcd1dfd0a"",
                     ""path"": ""<HID::Fake company Wio Terminal GamePad>/stick/x"",
                     ""interactions"": """",
-                    ""processors"": """",
+                    ""processors"": ""Scale(factor=0.0625),Scale(factor=0.001)"",
                     ""groups"": """",
-                    ""action"": ""New action"",
+                    ""action"": ""Move"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": true
                 },
@@ -87,9 +87,9 @@ public partial class @InGameAction: IInputActionCollection2, IDisposable
                     ""id"": ""e6994e69-ff07-4d6a-a5ec-7972e01d84f5"",
                     ""path"": ""<HID::Fake company Wio Terminal GamePad>/stick/x"",
                     ""interactions"": """",
-                    ""processors"": """",
+                    ""processors"": ""Scale(factor=0.0625),Scale(factor=0.001)"",
                     ""groups"": """",
-                    ""action"": ""New action"",
+                    ""action"": ""Move"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": true
                 },
@@ -98,9 +98,9 @@ public partial class @InGameAction: IInputActionCollection2, IDisposable
                     ""id"": ""62ea85a9-f29a-4cb2-ae0f-994c32b1e70e"",
                     ""path"": ""<HID::Fake company Wio Terminal GamePad>/stick/y"",
                     ""interactions"": """",
-                    ""processors"": """",
+                    ""processors"": ""Scale(factor=0.0625),Scale(factor=0.001)"",
                     ""groups"": """",
-                    ""action"": ""New action"",
+                    ""action"": ""Move"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": true
                 },
@@ -109,9 +109,9 @@ public partial class @InGameAction: IInputActionCollection2, IDisposable
                     ""id"": ""5c757372-21fc-45ee-a7b5-f795676141e9"",
                     ""path"": ""<HID::Fake company Wio Terminal GamePad>/stick/y"",
                     ""interactions"": """",
-                    ""processors"": """",
+                    ""processors"": ""Scale(factor=0.0625),Scale(factor=0.001)"",
                     ""groups"": """",
-                    ""action"": ""New action"",
+                    ""action"": ""Move"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": true
                 }
@@ -122,7 +122,7 @@ public partial class @InGameAction: IInputActionCollection2, IDisposable
 }");
         // InGame
         m_InGame = asset.FindActionMap("InGame", throwIfNotFound: true);
-        m_InGame_Newaction = m_InGame.FindAction("New action", throwIfNotFound: true);
+        m_InGame_Move = m_InGame.FindAction("Move", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -184,12 +184,12 @@ public partial class @InGameAction: IInputActionCollection2, IDisposable
     // InGame
     private readonly InputActionMap m_InGame;
     private List<IInGameActions> m_InGameActionsCallbackInterfaces = new List<IInGameActions>();
-    private readonly InputAction m_InGame_Newaction;
+    private readonly InputAction m_InGame_Move;
     public struct InGameActions
     {
         private @InGameAction m_Wrapper;
         public InGameActions(@InGameAction wrapper) { m_Wrapper = wrapper; }
-        public InputAction @Newaction => m_Wrapper.m_InGame_Newaction;
+        public InputAction @Move => m_Wrapper.m_InGame_Move;
         public InputActionMap Get() { return m_Wrapper.m_InGame; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -199,16 +199,16 @@ public partial class @InGameAction: IInputActionCollection2, IDisposable
         {
             if (instance == null || m_Wrapper.m_InGameActionsCallbackInterfaces.Contains(instance)) return;
             m_Wrapper.m_InGameActionsCallbackInterfaces.Add(instance);
-            @Newaction.started += instance.OnNewaction;
-            @Newaction.performed += instance.OnNewaction;
-            @Newaction.canceled += instance.OnNewaction;
+            @Move.started += instance.OnMove;
+            @Move.performed += instance.OnMove;
+            @Move.canceled += instance.OnMove;
         }
 
         private void UnregisterCallbacks(IInGameActions instance)
         {
-            @Newaction.started -= instance.OnNewaction;
-            @Newaction.performed -= instance.OnNewaction;
-            @Newaction.canceled -= instance.OnNewaction;
+            @Move.started -= instance.OnMove;
+            @Move.performed -= instance.OnMove;
+            @Move.canceled -= instance.OnMove;
         }
 
         public void RemoveCallbacks(IInGameActions instance)
@@ -228,6 +228,6 @@ public partial class @InGameAction: IInputActionCollection2, IDisposable
     public InGameActions @InGame => new InGameActions(this);
     public interface IInGameActions
     {
-        void OnNewaction(InputAction.CallbackContext context);
+        void OnMove(InputAction.CallbackContext context);
     }
 }
