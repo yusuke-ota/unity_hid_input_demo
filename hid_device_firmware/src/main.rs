@@ -148,6 +148,7 @@ fn display_report(
     report: &GamePadReport,
 ) {
     display_str.clear();
+    terminal.clear();
     let x: heapless::String<4> = heapless::String::try_from(report.x).unwrap();
     let y: heapless::String<4> = heapless::String::try_from(report.y).unwrap();
     let z: heapless::String<4> = heapless::String::try_from(report.z).unwrap();
