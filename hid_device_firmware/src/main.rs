@@ -169,7 +169,7 @@ fn display_report(terminal: &mut terminal::Terminal, report: &GamepadReport) {
     terminal.write_str(", y: ");
     let y: heapless::String<6> = heapless::String::try_from(report.y).unwrap();
     terminal.write_str(y.as_str());
-    terminal.write_str(", y: ");
+    terminal.write_str(", z: ");
     let y: heapless::String<6> = heapless::String::try_from(report.z).unwrap();
     terminal.write_str(y.as_str());
     terminal.write_str(", button: ");
