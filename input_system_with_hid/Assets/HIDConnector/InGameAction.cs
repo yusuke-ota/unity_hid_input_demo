@@ -22,9 +22,107 @@ public partial class @InGameAction: IInputActionCollection2, IDisposable
     {
         asset = InputActionAsset.FromJson(@"{
     ""name"": ""InGameAction"",
-    ""maps"": [],
+    ""maps"": [
+        {
+            ""name"": ""InGame"",
+            ""id"": ""b865d47f-81f6-4c77-8537-a9d4cf4484a2"",
+            ""actions"": [
+                {
+                    ""name"": ""New action"",
+                    ""type"": ""Value"",
+                    ""id"": ""bf645d49-6bc7-41ae-9454-3a2df19ab768"",
+                    ""expectedControlType"": ""Vector3"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true
+                }
+            ],
+            ""bindings"": [
+                {
+                    ""name"": ""3D Vector"",
+                    ""id"": ""ac4ff01b-cb34-405c-b5a1-0c9e10d0bab3"",
+                    ""path"": ""3DVector"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""New action"",
+                    ""isComposite"": true,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": ""up"",
+                    ""id"": ""3d11ee16-e3eb-4e8c-a4f6-650b9926cd73"",
+                    ""path"": ""<HID::Fake company Wio Terminal GamePad>/z"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""New action"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""down"",
+                    ""id"": ""7d898ee4-cb2b-4fcf-ace4-7456c9090ca0"",
+                    ""path"": ""<HID::Fake company Wio Terminal GamePad>/z"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""New action"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""left"",
+                    ""id"": ""dbb94584-4e0d-47c9-80ea-cc6bcd1dfd0a"",
+                    ""path"": ""<HID::Fake company Wio Terminal GamePad>/stick/x"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""New action"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""right"",
+                    ""id"": ""e6994e69-ff07-4d6a-a5ec-7972e01d84f5"",
+                    ""path"": ""<HID::Fake company Wio Terminal GamePad>/stick/x"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""New action"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""forward"",
+                    ""id"": ""62ea85a9-f29a-4cb2-ae0f-994c32b1e70e"",
+                    ""path"": ""<HID::Fake company Wio Terminal GamePad>/stick/y"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""New action"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""backward"",
+                    ""id"": ""5c757372-21fc-45ee-a7b5-f795676141e9"",
+                    ""path"": ""<HID::Fake company Wio Terminal GamePad>/stick/y"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""New action"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                }
+            ]
+        }
+    ],
     ""controlSchemes"": []
 }");
+        // InGame
+        m_InGame = asset.FindActionMap("InGame", throwIfNotFound: true);
+        m_InGame_Newaction = m_InGame.FindAction("New action", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -81,5 +179,55 @@ public partial class @InGameAction: IInputActionCollection2, IDisposable
     public int FindBinding(InputBinding bindingMask, out InputAction action)
     {
         return asset.FindBinding(bindingMask, out action);
+    }
+
+    // InGame
+    private readonly InputActionMap m_InGame;
+    private List<IInGameActions> m_InGameActionsCallbackInterfaces = new List<IInGameActions>();
+    private readonly InputAction m_InGame_Newaction;
+    public struct InGameActions
+    {
+        private @InGameAction m_Wrapper;
+        public InGameActions(@InGameAction wrapper) { m_Wrapper = wrapper; }
+        public InputAction @Newaction => m_Wrapper.m_InGame_Newaction;
+        public InputActionMap Get() { return m_Wrapper.m_InGame; }
+        public void Enable() { Get().Enable(); }
+        public void Disable() { Get().Disable(); }
+        public bool enabled => Get().enabled;
+        public static implicit operator InputActionMap(InGameActions set) { return set.Get(); }
+        public void AddCallbacks(IInGameActions instance)
+        {
+            if (instance == null || m_Wrapper.m_InGameActionsCallbackInterfaces.Contains(instance)) return;
+            m_Wrapper.m_InGameActionsCallbackInterfaces.Add(instance);
+            @Newaction.started += instance.OnNewaction;
+            @Newaction.performed += instance.OnNewaction;
+            @Newaction.canceled += instance.OnNewaction;
+        }
+
+        private void UnregisterCallbacks(IInGameActions instance)
+        {
+            @Newaction.started -= instance.OnNewaction;
+            @Newaction.performed -= instance.OnNewaction;
+            @Newaction.canceled -= instance.OnNewaction;
+        }
+
+        public void RemoveCallbacks(IInGameActions instance)
+        {
+            if (m_Wrapper.m_InGameActionsCallbackInterfaces.Remove(instance))
+                UnregisterCallbacks(instance);
+        }
+
+        public void SetCallbacks(IInGameActions instance)
+        {
+            foreach (var item in m_Wrapper.m_InGameActionsCallbackInterfaces)
+                UnregisterCallbacks(item);
+            m_Wrapper.m_InGameActionsCallbackInterfaces.Clear();
+            AddCallbacks(instance);
+        }
+    }
+    public InGameActions @InGame => new InGameActions(this);
+    public interface IInGameActions
+    {
+        void OnNewaction(InputAction.CallbackContext context);
     }
 }
