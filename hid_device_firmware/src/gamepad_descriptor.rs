@@ -1,42 +1,38 @@
 use usbd_hid::descriptor::generator_prelude::*;
 
-// This code is inspired by <https://github.com/twitchyliquid64/usbd-hid/issues/61>.
-/// GAMEPAD describes a report and its companion descriptor than can be used
-/// to send GAMEPAD button presses to a host.
+// TODO: D-Pad対応
+// (collection = PHYSICAL, usage_page = GENERIC_DESKTOP) = {
+//     (usage = X,) = {
+//         # [item_settings data, variable, relative] x = input;
+//     };
+//     (usage = Y,) = {
+//         # [item_settings data, variable, relative] y = input;
+//     };
+// };
+
 #[gen_hid_descriptor(
     (collection = APPLICATION, usage_page = GENERIC_DESKTOP, usage = GAMEPAD) = {
         (collection = APPLICATION, usage = POINTER) = {
-            (usage = X,) = {
-                #[item_settings data,variable,absolute] x=input;
+            (collection = PHYSICAL, usage_page = GENERIC_DESKTOP) = {
+                (usage = X,) = {
+                    # [item_settings data, variable, relative] x = input;
+                };
+                (usage = Y,) = {
+                    # [item_settings data, variable, relative] y = input;
+                };
+                (usage = Z,) = {
+                    # [item_settings data, variable, relative] z = input;
+                };
             };
-            (usage = Y,) = {
-                #[item_settings data,variable,absolute] y=input;
-            };
-            (usage = Z,) = {
-                #[item_settings data,variable,absolute] z=input;
-            };
-            (usage = 0x33,) = {
-                #[item_settings data,variable,absolute] rx=input;
-            };
-            (usage = 0x34,) = {
-                #[item_settings data,variable,absolute] ry=input;
-            };
-            (usage = 0x35,) = {
-                #[item_settings data,variable,absolute] rz=input;
+            (usage_page = BUTTON, usage_min = 0x01, usage_max = 0x08) = {
+                # [packed_bits 8] # [item_settings data, variable, absolute] buttons = input;
             };
         };
-        (usage_page = BUTTON, usage_min = BUTTON_1, usage_max = BUTTON_8) = {
-            #[packed_bits 8] #[item_settings data,variable,absolute] buttons=input;
-        }
     }
 )]
-#[derive(Default, Ord, PartialOrd, Eq, PartialEq)]
-pub struct GamePadReport {
+pub struct GamepadReport {
     pub buttons: u8,
-    pub x: i8,
-    pub y: i8,
-    pub z: i8,
-    pub rx: i16,
-    pub ry: i16,
-    pub rz: i16,
+    pub x: i16,
+    pub y: i16,
+    pub z: i16,
 }

@@ -5,12 +5,12 @@ use embedded_graphics::primitives::{PrimitiveStyleBuilder, Rectangle};
 use embedded_graphics::text::{Baseline, Text};
 use wio_terminal as bsp;
 
-// Copy from <https://github.com/atsamd-rs/atsamd/blob/master/boards/wio_terminal/examples/microphone.rs>
-/// Handly helper for logging text to the screen.
+// Copy from <https://github.com/atsamd-rs/atsamd/blob/master/boards/wio_terminal/examples/usb_serial_display.rs>
 pub struct Terminal<'a> {
     text_style: MonoTextStyle<'a, Rgb565>,
     cursor: Point,
     display: bsp::LCD,
+    rectangle: Rectangle,
 }
 
 impl<'a> Terminal<'a> {
@@ -23,16 +23,14 @@ impl<'a> Terminal<'a> {
             Rectangle::with_corners(Point::new(0, 0), Point::new(320, 320)).into_styled(style);
         backdrop.draw(&mut display).ok().unwrap();
 
+        let rectangle = Rectangle::with_corners(Point::new(0, 0), Point::new(320, 240));
+
         Self {
             text_style: MonoTextStyle::new(&FONT_6X12, Rgb565::WHITE),
             cursor: Point::new(0, 0),
             display,
+            rectangle,
         }
-    }
-
-    pub fn clear(&mut self) {
-        self.display.clear(Rgb565::BLACK).ok().unwrap();
-        self.cursor = Point::new(0, 0);
     }
 
     pub fn write_str(&mut self, str: &str) {
@@ -42,17 +40,11 @@ impl<'a> Terminal<'a> {
     }
 
     pub fn write_character(&mut self, c: char) {
-        if self.cursor.x >= 320 || c == '\n' {
+        if self.cursor.x >= 320 - FONT_6X12.character_size.width as i32 || c == '\n' {
             self.cursor = Point::new(0, self.cursor.y + FONT_6X12.character_size.height as i32);
         }
         if self.cursor.y >= 240 {
-            // Clear the screen.
-            let style = PrimitiveStyleBuilder::new()
-                .fill_color(Rgb565::BLACK)
-                .build();
-            let backdrop =
-                Rectangle::with_corners(Point::new(0, 0), Point::new(320, 320)).into_styled(style);
-            backdrop.draw(&mut self.display).ok().unwrap();
+            self.clear();
             self.cursor = Point::new(0, 0);
         }
 
@@ -70,5 +62,9 @@ impl<'a> Terminal<'a> {
 
             self.cursor.x += (FONT_6X12.character_size.width + FONT_6X12.character_spacing) as i32;
         }
+    }
+
+    fn clear(&mut self) {
+        self.display.fill_solid(&self.rectangle, Rgb565::BLACK).ok();
     }
 }
