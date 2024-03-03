@@ -19,7 +19,7 @@ use hal::fugit::{ExtU32, RateExtU32};
 use hal::timer::TimerCounter;
 // use pac::interrupt;
 
-use lis3dh::accelerometer::vector::I16x3;
+use lis3dh::accelerometer::Accelerometer;
 use lis3dh::{Lis3dh, Mode, Range};
 
 // usb
@@ -131,7 +131,7 @@ fn main() -> ! {
                 unsafe {
                     update_hid_report_via_accelerometer(&mut accelerometer, &mut REPORT);
                     usb_hid.push_input(&REPORT).ok();
-                    display_report(&mut terminal, &REPORT)
+                    // display_report(&mut terminal, &REPORT)
                 }
             }
         }
@@ -140,14 +140,14 @@ fn main() -> ! {
     }
 }
 
-fn update_hid_report_via_accelerometer<T: RawAccelerometer<I16x3>>(
+fn update_hid_report_via_accelerometer<T: Accelerometer>(
     accelerometer: &mut T,
     report: &mut GamepadReport,
 ) {
-    if let Ok(vec3) = accelerometer.accel_raw() {
-        report.x = vec3.x;
-        report.y = vec3.y;
-        report.z = vec3.z;
+    if let Ok(vec3) = accelerometer.accel_norm() {
+        report.x = vec3.x.to_bits();
+        report.y = vec3.y.to_bits();
+        report.z = vec3.z.to_bits();
     }
 }
 
