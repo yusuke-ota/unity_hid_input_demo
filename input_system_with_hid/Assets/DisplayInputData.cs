@@ -6,7 +6,6 @@ public class DisplayInputData : MonoBehaviour
 {
     [SerializeField] private TextMeshProUGUI displayText;
     private StringBuilder _cachedString;
-
     private InGameAction _inGameAction;
 
     private void Awake()
